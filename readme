@@ -1,3 +1,7 @@
+本文通过ansible以kubeadm方式安装k8s-ha，由3台master构成，包括flannel，coredns，keepalived+haproxy，dashbroad；
+请多多指教！
+交流请发邮件联系：linuxzhangyu@163.com
+
 注意修改yml变量
 1、在第一台安装ansible
 	$ yum install sshpass git lrzsz wget -y
