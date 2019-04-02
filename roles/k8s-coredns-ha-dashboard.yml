@@ -1,0 +1,5 @@
+---
+- hosts: k8s-master1
+  roles:
+    - { role: k8s-coredns }
+    - { role: dashboard, dashNodePort: 32000 }

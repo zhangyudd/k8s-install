@@ -1,0 +1,34 @@
+---
+- name: "kubeadm master2 conf"
+  template: src=kubeadm-master2.yaml.j2 dest=~/kubeadm-master2.yaml
+  
+- name: "配置证书"
+  shell: cd ~/ && kubeadm init phase certs all --config kubeadm-master2.yaml >> ~/k8s.init.log
+  
+- name: "etcd证书"
+  shell: cd ~/ &&  kubeadm init phase etcd local --config kubeadm-master2.yaml >> ~/k8s.init.log 
+  
+- name: "生成kubelet配置文件"
+  shell: cd ~/ &&  kubeadm init phase kubeconfig kubelet --config kubeadm-master2.yaml >> ~/k8s.init.log 
+  
+- name: "启动kubelet"
+  shell: cd ~/ &&  kubeadm init phase kubelet-start --config kubeadm-master2.yaml >> ~/k8s.init.log 
+  
+- name: "配置kubectl命令"
+  shell: cd ~/ &&  mkdir -p $HOME/.kube && sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config && sudo chown $(id -u):$(id -g) $HOME/.kube/config
+  
+- name: "将etcd加入集群"
+  shell: cd ~/ &&  kubectl exec -n kube-system etcd-{{ host1 }} -- etcdctl --ca-file /etc/kubernetes/pki/etcd/ca.crt --cert-file /etc/kubernetes/pki/etcd/peer.crt --key-file /etc/kubernetes/pki/etcd/peer.key --endpoints=https://{{ ip1 }}:2379 member add master2 https://{{ ip2 }}:2380  >> ~/k8s.init.log
+
+- name: "启动 kube"
+  shell: cd ~/ &&  kubeadm init phase kubeconfig all --config kubeadm-master2.yaml  >> ~/k8s.init.log 
+  
+- name: "启动 kube-con"
+  shell: cd ~/ &&  kubeadm init phase control-plane all --config kubeadm-master2.yaml  >> ~/k8s.init.log 
+
+- name: "标记"
+  shell: cd ~/ &&  kubeadm init phase mark-control-plane --config kubeadm-master2.yaml  >> ~/k8s.init.log 
+  
+
+  
+

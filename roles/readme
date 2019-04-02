@@ -1,0 +1,65 @@
+注意修改yml变量
+1、在第一台安装ansible
+	$ yum install sshpass git lrzsz wget -y
+	$ wget https://bootstrap.pypa.io/get-pip.py
+	$ git clone git://github.com/ansible/ansible.git --recursive 	
+	$ pip install pyyaml jinja2 paramiko
+	$ mkdir /etc/ansible	
+	上传配置文件和hosts文件
+	$ ls /etc/ansible
+		ansible.cfg  hosts
+	$ ssh-keygen
+	$ ansible all -m authorized_key -a "user=root key='{{ lookup('file','/root/.ssh/id_rsa.pub')}}' path='/root/.ssh/authorized_keys' manage_dir=no" --ask-pass -c paramiko
+
+
+2、执行k8sinstall.yaml 安装基础环境和软件
+	ansible-playbook k8sinstall.yaml
+
+3、安装keepalived 	keep-haproxy.yml
+    ansible-playbook keep-haproxy.yml
+	
+4、 两种镜像获取方式选择一种
+	编写k8smaster1.yml
+		ansible-playbook k8smaster1.yml
+		得到初始化文件: kubeadm-master1.yaml 
+	4.1 修改镜像源，下载images（image存到阿里云仓库registry.cn-beijing.aliyuncs.com/kube-zy）
+	kubeadm config images pull --config ~/kubeadm-master1.yaml	(三台)
+	
+	4.2 查看需要的镜像并导入(k8s.gcr.io)
+	kubeadm config images list --kubernetes-version=v1.14.0
+		k8s.gcr.io/kube-apiserver:v1.14.0
+		k8s.gcr.io/kube-controller-manager:v1.14.0
+		k8s.gcr.io/kube-scheduler:v1.14.0
+		k8s.gcr.io/kube-proxy:v1.14.0
+		k8s.gcr.io/pause:3.1
+		k8s.gcr.io/etcd:3.3.10
+		k8s.gcr.io/coredns:1.3.1
+5、重新编译kubeadm，由于默认证书有效期为10年，所以需要重新编译,
+	https://blog.51cto.com/lvsir666/2344986?source=dra
+	初始化
+	cd ~/ && kubeadm init --config kubeadm-master1.yaml	
+		
+6、将pki证书scp到master2，master3,初始化master2，master3
+	ansible-playbook k8smaster23.yml
+
+7、创建网络flannle
+	wget https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+	注意：如果不是一块网卡，需要更改配置
+	kube-flannel.yml 
+	containers:
+      - name: kube-flannel
+        image: quay.io/coreos/flannel:v0.10.0-amd64
+        command:
+        - /opt/bin/flanneld
+        args:
+        - --ip-masq
+        - --kube-subnet-mgr
+        - --iface=ens33              #添加
+
+8、由于coredns存在单节点问题，需要部署高可用,以及部署dashboard
+	ansible-playbook k8s-coredns-ha-dashboard.yml
+	获取登陆令牌
+	kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep dashboard | awk '{print $1}') 
+
+9、Prometheus
+	安装地址：https://blog.51cto.com/kaliarch/2160569

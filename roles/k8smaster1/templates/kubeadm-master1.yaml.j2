@@ -1,0 +1,42 @@
+apiVersion: kubeadm.k8s.io/v1beta1
+kind: InitConfiguration
+localAPIEndpoint:
+  advertiseAddress: {{ ip1 }}
+  bindPort: 6443
+---
+apiVersion: kubeadm.k8s.io/v1beta1
+kind: ClusterConfiguration
+kubernetesVersion: {{ version }}
+imageRepository: registry.cn-hangzhou.aliyuncs.com/google_containers
+
+apiServer:
+  certSANs:
+  - "{{ host1 }}"
+  - "{{ host2 }}"
+  - "{{ host3 }}"
+  - "{{ ip1 }}"
+  - "{{ ip2 }}"
+  - "{{ ip3 }}"
+  - "{{ VIP }}"
+  - "127.0.0.1"
+
+controlPlaneEndpoint: "{{ VIP }}:8443"
+
+etcd:
+  local:
+    extraArgs:
+      listen-client-urls: "https://127.0.0.1:2379,https://{{ ip1 }}:2379"
+      advertise-client-urls: "https://{{ ip1 }}:2379"
+      listen-peer-urls: "https://{{ ip1 }}:2380"
+      initial-advertise-peer-urls: "https://{{ ip1 }}:2380"
+      initial-cluster: "{{ host1 }}=https://{{ ip1 }}:2380"
+      initial-cluster-state: new
+    serverCertSANs:
+      - {{ host1 }}
+      - {{ ip1 }}
+    peerCertSANs:
+      - {{ host1 }}
+      - {{ ip1 }}
+
+networking:
+  podSubnet: "10.244.0.0/16"

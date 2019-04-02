@@ -1,0 +1,27 @@
+global
+        chroot  /var/lib/haproxy
+        daemon
+        group haproxy
+        user haproxy
+        log 127.0.0.1:514 local0 warning
+        pidfile /var/lib/haproxy.pid
+        maxconn 20000
+        spread-checks 3
+        nbproc 8
+
+defaults
+        log     global
+        mode    tcp
+        retries 3
+        option redispatch
+
+listen https-apiserver
+        bind {{ VIP }}:8443
+        mode tcp
+        balance roundrobin
+        timeout server 15s
+        timeout connect 15s
+
+        server apiserver01 {{ ip1 }}:6443 check port 6443 inter 5000 fall 5
+        server apiserver02 {{ ip2 }}:6443 check port 6443 inter 5000 fall 5
+        server apiserver03 {{ ip3 }}:6443 check port 6443 inter 5000 fall 5

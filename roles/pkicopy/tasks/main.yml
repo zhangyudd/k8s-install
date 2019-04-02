@@ -1,0 +1,33 @@
+---
+- name: "dir make"
+  shell: mkdir /etc/kubernetes/pki -pv
+  
+- name: "ca.crt"
+  copy: src=/etc/kubernetes/pki/ca.crt  dest=/etc/kubernetes/pki/ca.crt 
+  
+- name: "ca.key"
+  copy: src=/etc/kubernetes/pki/ca.key  dest=/etc/kubernetes/pki/ca.key 
+  
+- name: "sa.key"
+  copy: src=/etc/kubernetes/pki/sa.key  dest=/etc/kubernetes/pki/sa.key 
+
+- name: "sa.pub"
+  copy: src=/etc/kubernetes/pki/sa.pub  dest=/etc/kubernetes/pki/sa.pub 
+  
+- name: "front-proxy-ca.crt"
+  copy: src=/etc/kubernetes/pki/front-proxy-ca.crt dest=/etc/kubernetes/pki/front-proxy-ca.crt
+
+- name: "front-proxy-ca.key"
+  copy: src=/etc/kubernetes/pki/front-proxy-ca.key dest=/etc/kubernetes/pki/front-proxy-ca.key 
+
+- name: "etcd dir make"
+  shell: mkdir /etc/kubernetes/pki/etcd/ -pv  
+
+- name: "etcd ca.crt"
+  copy: src=/etc/kubernetes/pki/etcd/ca.crt dest=/etc/kubernetes/pki/etcd/ca.crt
+  
+- name: "etcd ca.key"
+  copy: src=/etc/kubernetes/pki/etcd/ca.key dest=/etc/kubernetes/pki/etcd/ca.key
+  
+- name: "admin.conf"
+  copy: src=/etc/kubernetes/admin.conf dest=/etc/kubernetes/admin.conf

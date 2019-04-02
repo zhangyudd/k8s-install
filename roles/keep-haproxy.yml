@@ -1,0 +1,16 @@
+---
+- hosts: k8s-master1
+  gather_facts: no
+  roles:
+    - { role: keep,  priority: 100, inter: enp0s8, VIP: 192.168.56.200 }
+
+- hosts: k8s-master2
+  gather_facts: no
+  roles:
+    - { role: keep, priority: 80, inter: enp0s8, VIP: 192.168.56.200 }
+
+- hosts: haproxy
+  gather_facts: no
+  roles:
+    - { role: haproxy, ip1: 192.168.56.101, ip2: 192.168.56.105, ip3: 192.168.56.106, VIP: 192.168.56.200 }
+

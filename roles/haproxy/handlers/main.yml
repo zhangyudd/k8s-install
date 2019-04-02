@@ -1,0 +1,2 @@
+- name: "restart service"
+  shell: systemctl enable keepalived && systemctl start keepalived && systemctl enable haproxy && systemctl start haproxy 

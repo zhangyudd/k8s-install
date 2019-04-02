@@ -1,0 +1,9 @@
+---
+- name: "ca.crt"
+  copy: src=k8s-core.yml  dest=~/k8s-coredns-ha.yml
+  
+- name: "delete only node"
+  shell: kubectl delete deploy coredns -n kube-system
+  
+- name: "apply ha coredns"
+  shell: cd ~/ && kubectl apply -f k8s-coredns-ha.yml

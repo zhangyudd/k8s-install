@@ -1,0 +1,7 @@
+---
+- name: "kubeadm master1 conf"
+  template: src=kubeadm-master1.yaml.j2 dest=~/kubeadm-master1.yaml
+  
+
+  
+
