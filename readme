@@ -66,4 +66,4 @@
 	kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep dashboard | awk '{print $1}') 
 
 9、Prometheus
-	安装地址：https://blog.51cto.com/kaliarch/2160569
+	安装地址：https://www.jianshu.com/p/d52d59cfd294
