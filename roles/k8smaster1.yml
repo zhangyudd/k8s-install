@@ -1,4 +1,4 @@
 ---
 - hosts: k8s-master1
   roles:
-    - { role: k8smaster1, ip1: 192.168.56.101, ip2: 192.168.56.107, ip3: 192.168.56.108, VIP: 192.168.56.200, host1: k8s-master1, host2: k8s-master2, host3: k8s-master3, version: v1.13.2 }
+    - { role: k8smaster1, ip1: 192.168.56.101, ip2: 192.168.56.107, ip3: 192.168.56.108, VIP: 192.168.56.200, host1: k8s-master1, host2: k8s-master2, host3: k8s-master3, version: v1.14.0 }
