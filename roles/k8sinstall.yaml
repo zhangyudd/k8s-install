@@ -2,6 +2,6 @@
 - hosts: k8s
   gather_facts: no
   roles:
-  - { role: k8sinstall, kubeversion: 1.13.2, ip1: 192.168.56.101, ip2: 192.168.56.107, ip3: 192.168.56.108, host1: k8s-master1, host2: k8s-master2, host3: k8s-master3 }
+  - { role: k8sinstall, kubeversion: 1.14.0, ip1: 192.168.56.101, ip2: 192.168.56.107, ip3: 192.168.56.108, host1: k8s-master1, host2: k8s-master2, host3: k8s-master3 }
 
 
