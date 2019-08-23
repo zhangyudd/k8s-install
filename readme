@@ -27,17 +27,17 @@
 		ansible-playbook k8smaster1.yml
 		得到初始化文件: kubeadm-master1.yaml 
 	4.1 修改镜像源，下载images（image存到阿里云仓库registry.cn-beijing.aliyuncs.com/kube-zy）
-	kubeadm config images pull --config ~/kubeadm-master1.yaml	(三台)
+		kubeadm config images pull --config ~/kubeadm-master1.yaml	(三台)
 	
 	4.2 查看需要的镜像并导入(k8s.gcr.io)
-	kubeadm config images list --kubernetes-version=v1.14.0
-		k8s.gcr.io/kube-apiserver:v1.14.0
-		k8s.gcr.io/kube-controller-manager:v1.14.0
-		k8s.gcr.io/kube-scheduler:v1.14.0
-		k8s.gcr.io/kube-proxy:v1.14.0
-		k8s.gcr.io/pause:3.1
-		k8s.gcr.io/etcd:3.3.10
-		k8s.gcr.io/coredns:1.3.1
+		kubeadm config images list --kubernetes-version=v1.14.0
+			k8s.gcr.io/kube-apiserver:v1.14.0
+			k8s.gcr.io/kube-controller-manager:v1.14.0
+			k8s.gcr.io/kube-scheduler:v1.14.0
+			k8s.gcr.io/kube-proxy:v1.14.0
+			k8s.gcr.io/pause:3.1
+			k8s.gcr.io/etcd:3.3.10
+			k8s.gcr.io/coredns:1.3.1
 5、重新编译kubeadm，由于默认证书有效期为10年，所以需要重新编译,
 	https://blog.51cto.com/lvsir666/2344986?source=dra
 	初始化
@@ -46,19 +46,48 @@
 6、将pki证书scp到master2，master3,初始化master2，master3
 	ansible-playbook k8smaster23.yml
 
-7、创建网络flannle
-	wget https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
-	注意：如果不是一块网卡，需要更改配置
-	kube-flannel.yml 
-	containers:
-      - name: kube-flannel
-        image: quay.io/coreos/flannel:v0.10.0-amd64
-        command:
-        - /opt/bin/flanneld
-        args:
-        - --ip-masq
-        - --kube-subnet-mgr
-        - --iface=ens33              #添加
+7、
+	7.1 创建网络flannel
+		wget https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+		注意：如果不是一块网卡，需要更改配置
+		kube-flannel.yml 
+		containers:
+		  - name: kube-flannel
+			image: quay.io/coreos/flannel:v0.10.0-amd64
+			command:
+			- /opt/bin/flanneld
+			args:
+			- --ip-masq
+			- --kube-subnet-mgr
+			- --iface=ens33              #添加
+	7.2 创建网络canal（是flannel和calico的组合）
+		wget https://docs.projectcalico.org/v3.8/getting-started/kubernetes/installation/hosted/canal/rbac.yaml
+		wget https://docs.projectcalico.org/v3.8/getting-started/kubernetes/installation/hosted/canal/canal.yaml
+		# 修改配置
+		# 此处的ip配置要与kubeadm的pod-network参数配置的一致
+		  net-conf.json: |
+			{
+			  "Network": "10.244.0.0/16",
+			  "Backend": {
+				"Type": "vxlan"
+			  }
+			}
+
+		# 修改calico镜像
+		sed -i 's@image: quay.io/calico/@image: registry.cn-shanghai.aliyuncs.com/gcr-k8s/calico-@g' canal.yaml
+
+		# 修改flannel镜像
+		image: registry.cn-shanghai.aliyuncs.com/gcr-k8s/flannel:v0.10.0-amd64
+
+		# 如果Node有多个网卡的话，参考flannel issues 39701，
+		# https://github.com/kubernetes/kubernetes/issues/39701
+		# 目前需要在kube-flannel.yml中使用--iface参数指定集群主机内网网卡的名称，
+		# 否则可能会出现dns无法解析。容器无法通信的情况，需要将kube-flannel.yml下载到本地，
+		# flanneld启动参数加上--iface=<iface-name>
+			containers:
+			  - name: kube-flannel
+				image: registry.cn-shanghai.aliyuncs.com/gcr-k8s/flannel:v0.10.0-amd64
+				command: [ "/opt/bin/flanneld", "--ip-masq", "--kube-subnet-mgr", "--iface=eth1" ]
 
 8、由于coredns存在单节点问题，需要部署高可用,以及部署dashboard
 	ansible-playbook k8s-coredns-ha-dashboard.yml
