@@ -61,8 +61,8 @@
 			- --kube-subnet-mgr
 			- --iface=ens33              #添加
 	7.2 创建网络canal（是flannel和calico的组合）
-		wget https://docs.projectcalico.org/v3.8/getting-started/kubernetes/installation/hosted/canal/rbac.yaml
-		wget https://docs.projectcalico.org/v3.8/getting-started/kubernetes/installation/hosted/canal/canal.yaml
+		wget https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/canal/rbac.yaml
+		wget https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/canal/canal.yaml
 		# 修改配置
 		# 此处的ip配置要与kubeadm的pod-network参数配置的一致
 		  net-conf.json: |

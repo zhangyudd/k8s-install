@@ -3,7 +3,7 @@
   template: src=kubernetes-dashboard.yaml.j2  dest=~/kubernetes-dashboard.yaml
  
 - name: "admin file copy"
-  template: src=kubernetes-dashboard-admin.rbac.yaml  dest=~/kubernetes-dashboard-admin.rbac.yaml
+  copy: src=kubernetes-dashboard-admin.rbac.yaml  dest=~/kubernetes-dashboard-admin.rbac.yaml
  
 - name: "delete only node"
   shell: cd ~/ && kubectl apply -f kubernetes-dashboard.yaml
